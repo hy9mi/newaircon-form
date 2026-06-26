@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[쓱싹] 에어컨 클리닝 2대이상 서비스 신청서</title>
+
+  <!-- 카카오 주소 API -->
+  <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+
+  <style>
+    :root {
+      --blue: #1a6ef5;
+      --blue-light: #e8f0fe;
+      --blue-dark: #1255c4;
+      --bg: #f5f6f8;
+      --white: #ffffff;
+      --text: #1a1a2e;
+      --text-sub: #555;
+      --border: #dde1ea;
+      --radius: 14px;
+      --shadow: 0 2px 12px rgba(26,110,245,0.08);
+      --red: #e53935;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Apple SD Gothic Neo', 'Pretendard', 'Noto Sans KR', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 0 0 60px;
+    }
+
+    /* 상단 배너 */
+    .top-banner {
+      background: #1a1a2e;
+      color: #fff;
+      text-align: center;
+      padding: 10px 16px;
+      font-size: 13px;
+      letter-spacing: -0.2px;
+    }
+    .top-banner span { color: #6db3ff; font-weight: 600; }
+
+    /* 헤더 */
+    .header {
+      background: var(--blue);
+      padding: 28px 20px 24px;
+      text-align: center;
+      color: #fff;
+    }
+    .header .brand {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      opacity: 0.8;
+      margin-bottom: 8px;
+    }
+    .header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.4;
+      margin-bottom: 6px;
+    }
+    .header .sub {
+      font-size: 12px;
+      opacity: 0.75;
+    }
+
+    /* 안내문 */
+    .info-box {
+      background: var(--white);
+      margin: 16px;
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      border-left: 4px solid var(--blue);
+    }
+    .info-box h2 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--blue);
+      margin-bottom: 10px;
+    }
+    .info-box p {
+      font-size: 12.5px;
+      line-height: 1.7;
+      color: var(--text-sub);
+    }
+    .price-table {
+      margin-top: 12px;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    .price-table th, .price-table td {
+      font-size: 12px;
+      padding: 6px 8px;
+      border: 1px solid var(--border);
+      text-align: left;
+    }
+    .price-table th { background: var(--blue-light); color: var(--blue-dark); font-weight: 600; }
+    .price-table .discount { color: var(--blue); font-weight: 700; }
+    .price-table .original { color: #aaa; text-decoration: line-through; font-size: 11px; }
+    .info-note {
+      font-size: 11.5px;
+      color: #888;
+      margin-top: 10px;
+      line-height: 1.6;
+    }
+    .contact-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .contact-badge {
+      background: var(--blue-light);
+      color: var(--blue-dark);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+
+    /* 폼 컨테이너 */
+    .form-wrap {
+      margin: 0 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .field-label {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .field-label .req { color: var(--red); }
+    .field-desc {
+      font-size: 11.5px;
+      color: #888;
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+
+    input[type="text"], input[type="tel"], textarea {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 11px 13px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+      background: #fafbfc;
+    }
+    input[type="text"]:focus, input[type="tel"]:focus, textarea:focus {
+      border-color: var(--blue);
+      background: #fff;
+    }
+    input.error, textarea.error { border-color: var(--red); }
+
+    textarea { resize: vertical; min-height: 80px; }
+
+    .error-msg {
+      font-size: 11.5px;
+      color: var(--red);
+      margin-top: 4px;
+      display: none;
+    }
+    .error-msg.show { display: block; }
+
+    /* 주소 */
+    .address-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .address-row input { flex: 1; }
+    .btn-addr {
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0 14px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+    .btn-addr:hover { background: var(--blue-dark); }
+
+    /* 라디오 / 체크박스 */
+    .radio-group, .check-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .radio-item, .check-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 13px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      font-size: 13.5px;
+    }
+    .radio-item:has(input:checked), .check-item:has(input:checked) {
+      border-color: var(--blue);
+      background: var(--blue-light);
+    }
+    .radio-item input, .check-item input { accent-color: var(--blue); width: 16px; height: 16px; }
+
+    .other-input {
+      margin-top: 6px;
+      width: 100%;
+      display: none;
+    }
+    .other-input.show { display: block; }
+
+    /* 에어컨 종류 + 수량 */
+    .ac-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .ac-item {
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .ac-item.selected {
+      border-color: var(--blue);
+      background: var(--blue-light);
+    }
+    .ac-checkbox {
+      accent-color: var(--blue);
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .ac-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .ac-name {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+    .ac-note {
+      font-size: 11px;
+      color: #999;
+      line-height: 1.4;
+    }
+    .ac-price {
+      font-size: 12px;
+      color: var(--blue);
+      font-weight: 700;
+      margin-top: 2px;
+    }
+    .ac-qty {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      flex-shrink: 0;
+      opacity: 0.35;
+      pointer-events: none;
+      transition: opacity 0.15s;
+    }
+    .ac-qty.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .qty-btn {
+      width: 32px;
+      height: 32px;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      border-radius: 50%;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--blue);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.1s;
+      line-height: 1;
+    }
+    .qty-btn:hover { background: var(--blue-light); }
+    .qty-num {
+      min-width: 28px;
+      text-align: center;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    /* 일정 */
+    .schedule-sub {
+      margin-top: 10px;
+    }
+
+    /* 동의 */
+    .agree-box {
+      background: #fafbfc;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 12px;
+      color: #777;
+      line-height: 1.7;
+      margin-bottom: 10px;
+      border: 1px solid var(--border);
+    }
+    .agree-box a { color: var(--blue); }
+    .agree-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .agree-row input { accent-color: var(--blue); width: 18px; height: 18px; }
+
+    /* 제출 버튼 */
+    .submit-wrap {
+      margin: 16px 16px 0;
+    }
+    .btn-submit {
+      width: 100%;
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      letter-spacing: -0.3px;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-submit:hover { background: var(--blue-dark); }
+    .btn-submit:active { transform: scale(0.98); }
+    .btn-submit:disabled { background: #b0bec5; cursor: not-allowed; }
+
+    /* 완료 화면 */
+    .success-screen {
+      display: none;
+      text-align: center;
+      padding: 60px 20px;
+    }
+    .success-screen.show { display: block; }
+    .success-icon {
+      font-size: 56px;
+      margin-bottom: 16px;
+    }
+    .success-screen h2 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .success-screen p {
+      font-size: 13.5px;
+      color: var(--text-sub);
+      line-height: 1.7;
+    }
+
+    /* 로딩 */
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,0.8);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .loading-overlay.show { display: flex; }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--blue-light);
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <p style="font-size:13px;color:var(--text-sub)">신청서 제출 중...</p>
+</div>
+
+<div class="top-banner">
+  📢 <span>7월 10일부터 요금이 인상될 수 있어요</span> — 지금 신청하면 할인가 그대로!
+</div>
+
+<div class="header">
+  <div class="brand">쓱싹 · SSUKSAK</div>
+  <h1>에어컨 클리닝<br>2대 이상 서비스 신청서</h1>
+  <div class="sub">신청 후 1~2일 이내 해피콜 상담을 도와드립니다</div>
+</div>
+
+<!-- 안내문 -->
+<div class="info-box" style="margin-top:16px;">
+  <h2>📋 서비스 기본 할인 가격 안내 (대당, VAT 포함)</h2>
+  <table class="price-table">
+    <thead>
+      <tr><th>종류</th><th>정가</th><th>할인가</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>벽걸이형</td><td class="original">79,000원</td><td class="discount">69,000원</td></tr>
+      <tr><td>스탠드형(가정용)</td><td class="original">139,000원</td><td class="discount">129,000원</td></tr>
+      <tr><td>2in1 멀티형</td><td class="original">218,000원</td><td class="discount">189,000원</td></tr>
+      <tr><td>천장형 1/2way</td><td class="original">99,000원</td><td class="discount">89,000원</td></tr>
+      <tr><td>천장형 4way</td><td class="original">169,000원</td><td class="discount">149,000원</td></tr>
+    </tbody>
+  </table>
+  <p class="info-note">
+    위 금액은 기본 서비스 비용이며, 현장 상황(제품 상태·오염도·작업 환경)에 따라 추가 요금이 발생할 수 있습니다. 현장 비용 발생 시 사전 안내 후 진행합니다.
+  </p>
+  <div class="contact-row">
+    <span class="contact-badge">📞 1600-2605</span>
+    <span class="contact-badge">💬 카카오 채팅 상담</span>
+  </div>
+</div>
+
+<!-- 폼 -->
+<form id="mainForm" novalidate>
+<div class="form-wrap">
+
+  <!-- 1. 성함 -->
+  <div class="card">
+    <div class="field-label">신청자 성함 <span class="req">*</span></div>
+    <div class="field-desc">ex) 김쓱싹</div>
+    <input type="text" id="name" placeholder="성함을 입력해주세요" autocomplete="name" />
+    <div class="error-msg" id="nameErr">성함을 입력해주세요.</div>
+  </div>
+
+  <!-- 2. 휴대폰 번호 -->
+  <div class="card">
+    <div class="field-label">신청자 휴대폰 번호 <span class="req">*</span></div>
+    <div class="field-desc">해피콜 드릴 예정이니 정확히 입력해 주세요. (서비스 확인 및 결제에 사용됩니다)</div>
+    <input type="tel" id="phone" placeholder="010-0000-0000" maxlength="13" inputmode="numeric" />
+    <div class="error-msg" id="phoneErr">정확한 휴대폰 번호 11자리를 입력해주세요.</div>
+  </div>
+
+  <!-- 3. 주소 -->
+  <div class="card">
+    <div class="field-label">클리닝 받으실 주소 <span class="req">*</span></div>
+    <div class="field-desc">서비스 받으실 주소가 다를 경우, 각각 별도 접수가 필요합니다.</div>
+    <div class="address-row">
+      <input type="text" id="postcode" placeholder="우편번호" readonly style="max-width:110px;background:#f0f2f5;" />
+      <button type="button" class="btn-addr" onclick="openAddressSearch()">주소 검색</button>
+    </div>
+    <input type="text" id="address1" placeholder="기본 주소 (검색 후 자동입력)" readonly style="margin-bottom:8px;background:#f0f2f5;" />
+    <input type="text" id="address2" placeholder="상세 주소를 입력해주세요 (필수)" />
+    <div class="error-msg" id="addressErr">주소를 검색하고 상세 주소를 입력해주세요.</div>
+  </div>
+
+  <!-- 4. 주차 -->
+  <div class="card">
+    <div class="field-label">무료 주차장 유무 <span class="req">*</span></div>
+    <div class="field-desc">유료 주차 이용 시 주차비는 고객님 부담이며, 주차 공간이 없거나 너무 먼 경우 서비스가 불가할 수 있습니다.</div>
+    <div class="radio-group" id="parkingGroup">
+      <label class="radio-item">
+        <input type="radio" name="parking" value="있음" />
+        있음
+      </label>
+      <label class="radio-item">
+        <input type="radio" name="parking" value="없음" />
+        없음
+      </label>
+      <label class="radio-item">
+        <input type="radio" name="parking" value="기타" />
+        기타
+        <input type="text" id="parkingOther" class="other-input" placeholder="직접 입력" />
+      </label>
+    </div>
+    <div class="error-msg" id="parkingErr">주차장 유무를 선택해주세요.</div>
+  </div>
+
+  <!-- 5. 에어컨 종류 + 수량 -->
+  <div class="card">
+    <div class="field-label">서비스 받으실 에어컨 종류 및 수량 <span class="req">*</span></div>
+    <div class="field-desc">복수 선택 가능 / 체크 후 수량을 조절해주세요 (최소 2대 이상)</div>
+    <div class="ac-list" id="acList">
+      <!-- JS로 렌더링 -->
+    </div>
+    <div class="error-msg" id="acErr">에어컨 종류를 선택하고 수량을 설정해주세요 (총 2대 이상).</div>
+
+    <!-- 기타 -->
+    <div style="margin-top:10px;">
+      <label class="check-item" id="acOtherLabel">
+        <input type="checkbox" id="acOtherCheck" />
+        기타 (직접 입력)
+      </label>
+      <input type="text" id="acOtherText" class="other-input" placeholder="ex) 이동형, 창문형 등 (수량 포함)" style="margin-top:8px;" />
+    </div>
+  </div>
+
+  <!-- 6. 희망 일정 -->
+  <div class="card">
+    <div class="field-label">희망하시는 일정 <span class="req">*</span></div>
+    <div class="field-desc">최대한 고객님 일정에 맞추기 위해 노력하지만, 전문가 일정 상 협의가 필요할 수 있습니다.</div>
+    <div class="radio-group" id="scheduleGroup">
+      <label class="radio-item">
+        <input type="radio" name="schedule" value="희망 일정이 있으나, 협의 가능" />
+        희망 일정이 있으나, 협의 가능
+      </label>
+      <label class="radio-item">
+        <input type="radio" name="schedule" value="희망 일정이 있으며, 협의 불가" />
+        희망 일정이 있으며, 협의 불가
+      </label>
+    </div>
+    <div class="schedule-sub" id="scheduleTextWrap" style="display:none">
+      <div class="field-label" style="margin-top:10px;font-size:12.5px;font-weight:600;color:#555;">희망하시는 일정을 모두 적어주세요.</div>
+      <div class="field-desc">ex) 6/30일 15시, 7/4일 13시, 수/목/금 시간 아무때나 가능, 주말만 가능(15~17시)</div>
+      <textarea id="scheduleText" rows="3" placeholder="희망 일정을 입력해주세요"></textarea>
+    </div>
+    <div class="error-msg" id="scheduleErr">희망 일정을 선택해주세요.</div>
+  </div>
+
+  <!-- 7. 개인정보 동의 -->
+  <div class="card">
+    <div class="field-label">개인정보 수집 및 이용 동의 <span class="req">*</span></div>
+    <div class="agree-box">
+      수집 항목: 성명, 휴대폰번호, 주소<br>
+      수집 목적: 서비스 예약 및 해피콜 상담 진행<br>
+      보유 기간: 서비스 종료 후 1년<br>
+      <a href="https://sgsg.slogup.com/term-of-use" target="_blank">개인정보 처리 방침 전문 보기 →</a>
+    </div>
+    <label class="agree-row">
+      <input type="checkbox" id="agreeCheck" />
+      개인정보 수집 및 이용에 동의합니다.
+    </label>
+    <div class="error-msg" id="agreeErr">개인정보 수집 및 이용에 동의해주세요.</div>
+  </div>
+
+</div><!-- form-wrap -->
+
+<div class="submit-wrap">
+  <button type="submit" class="btn-submit" id="submitBtn">신청서 제출하기</button>
+</div>
+</form>
+
+<!-- 완료 -->
+<div class="success-screen" id="successScreen" style="display:none;">
+  <div class="success-icon">🎉</div>
+  <h2>신청이 완료되었습니다!</h2>
+  <p>
+    입력하신 정보를 바탕으로<br>
+    <strong>1~2일 이내</strong> 순차적으로 해피콜 상담 연락을 드릴 예정입니다.<br><br>
+    정확하지 않은 정보 기입 시 서비스 접수가 지연되거나<br>
+    불가할 수 있으니 연락처를 확인해 주세요!<br><br>
+    <span style="color:#888;font-size:12px;">📞 1600-2605 · 카카오톡 채팅 상담</span>
+  </p>
+</div>
+
+<script>
+// =============================================
+// ▶ 설정: Google Apps Script 웹앱 URL
+// =============================================
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxrc9iOBVduBKJ7K6BUeTwxMgv-RQANiHMvXzlo8pucYsDABgJbaWsnEu7UIbhLjxxaeg/exec";
+
+// =============================================
+// 에어컨 데이터
+// =============================================
+const AC_TYPES = [
+  { id: "wall",      name: "벽걸이형",               note: "액자형, 창문형은 서비스 불가",          price: "69,000원" },
+  { id: "stand",     name: "스탠드형 (가정용)",        note: "",                                      price: "129,000원" },
+  { id: "multi2in1", name: "2in1 멀티형",              note: "벽걸이 1대+스탠드 1대 세트는 해당 없음", price: "189,000원" },
+  { id: "ceiling12", name: "천장형 1/2way 시스템",     note: "",                                      price: "89,000원" },
+  { id: "ceiling4",  name: "천장형 4way 시스템",       note: "",                                      price: "149,000원" },
+  { id: "stand_biz", name: "스탠드형 (업소용)",        note: "",                                      price: "별도 협의" },
+];
+
+let acQty = {};
+AC_TYPES.forEach(ac => acQty[ac.id] = 0);
+
+function renderAcList() {
+  const list = document.getElementById("acList");
+  list.innerHTML = AC_TYPES.map(ac => `
+    <div class="ac-item" id="ac-item-${ac.id}">
+      <input type="checkbox" class="ac-checkbox" id="ac-chk-${ac.id}" onchange="toggleAc('${ac.id}')" />
+      <div class="ac-info">
+        <div class="ac-name">${ac.name}</div>
+        ${ac.note ? `<div class="ac-note">⚠ ${ac.note}</div>` : ""}
+        <div class="ac-price">할인가 ${ac.price}</div>
+      </div>
+      <div class="ac-qty" id="ac-qty-${ac.id}">
+        <button type="button" class="qty-btn" onclick="changeQty('${ac.id}', -1)">−</button>
+        <span class="qty-num" id="ac-num-${ac.id}">0</span>
+        <button type="button" class="qty-btn" onclick="changeQty('${ac.id}', +1)">+</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+function toggleAc(id) {
+  const chk = document.getElementById("ac-chk-" + id);
+  const item = document.getElementById("ac-item-" + id);
+  const qty = document.getElementById("ac-qty-" + id);
+  if (chk.checked) {
+    item.classList.add("selected");
+    qty.classList.add("active");
+    if (acQty[id] === 0) { acQty[id] = 1; document.getElementById("ac-num-" + id).textContent = 1; }
+  } else {
+    item.classList.remove("selected");
+    qty.classList.remove("active");
+    acQty[id] = 0;
+    document.getElementById("ac-num-" + id).textContent = 0;
+  }
+}
+
+function changeQty(id, delta) {
+  const chk = document.getElementById("ac-chk-" + id);
+  if (!chk.checked) return;
+  acQty[id] = Math.max(1, acQty[id] + delta);
+  document.getElementById("ac-num-" + id).textContent = acQty[id];
+}
+
+// 기타 체크박스
+document.addEventListener("DOMContentLoaded", () => {
+  renderAcList();
+
+  document.getElementById("acOtherCheck").addEventListener("change", function() {
+    const t = document.getElementById("acOtherText");
+    t.classList.toggle("show", this.checked);
+    document.getElementById("acOtherLabel").classList.toggle("check-item", true);
+  });
+
+  // 주차 기타
+  document.querySelectorAll('input[name="parking"]').forEach(r => {
+    r.addEventListener("change", () => {
+      const oi = document.getElementById("parkingOther");
+      oi.classList.toggle("show", r.value === "기타" && r.checked);
+    });
+  });
+
+  // 희망 일정 라디오
+  document.querySelectorAll('input[name="schedule"]').forEach(r => {
+    r.addEventListener("change", () => {
+      document.getElementById("scheduleTextWrap").style.display = "block";
+    });
+  });
+});
+
+// =============================================
+// 카카오 주소 검색
+// =============================================
+function openAddressSearch() {
+  new daum.Postcode({
+    oncomplete: function(data) {
+      document.getElementById("postcode").value = data.zonecode;
+      document.getElementById("address1").value = data.roadAddress || data.jibunAddress;
+      document.getElementById("address2").focus();
+    }
+  }).open();
+}
+
+// =============================================
+// 휴대폰 번호 자동 하이픈
+// =============================================
+document.getElementById("phone").addEventListener("input", function(e) {
+  let v = e.target.value.replace(/\D/g, "").slice(0, 11);
+  if (v.length < 4) {
+    e.target.value = v;
+  } else if (v.length < 8) {
+    e.target.value = v.slice(0, 3) + "-" + v.slice(3);
+  } else {
+    e.target.value = v.slice(0, 3) + "-" + v.slice(3, 7) + "-" + v.slice(7);
+  }
+});
+
+// =============================================
+// 유효성 검사
+// =============================================
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg || el.textContent;
+  el.classList.add("show");
+}
+function hideErr(id) {
+  document.getElementById(id).classList.remove("show");
+}
+function setInputErr(id, isErr) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle("error", isErr);
+}
+
+function validate() {
+  let ok = true;
+
+  // 성함
+  const name = document.getElementById("name").value.trim();
+  if (!name) { showErr("nameErr"); setInputErr("name", true); ok = false; }
+  else { hideErr("nameErr"); setInputErr("name", false); }
+
+  // 휴대폰
+  const phone = document.getElementById("phone").value.replace(/\D/g, "");
+  if (phone.length !== 11) { showErr("phoneErr"); setInputErr("phone", true); ok = false; }
+  else { hideErr("phoneErr"); setInputErr("phone", false); }
+
+  // 주소
+  const addr1 = document.getElementById("address1").value.trim();
+  const addr2 = document.getElementById("address2").value.trim();
+  if (!addr1 || !addr2) { showErr("addressErr"); setInputErr("address2", true); ok = false; }
+  else { hideErr("addressErr"); setInputErr("address2", false); }
+
+  // 주차
+  const parkingVal = document.querySelector('input[name="parking"]:checked');
+  if (!parkingVal) { showErr("parkingErr"); ok = false; }
+  else { hideErr("parkingErr"); }
+
+  // 에어컨 (총 수량 2대 이상)
+  const totalAc = Object.values(acQty).reduce((a, b) => a + b, 0);
+  const otherChk = document.getElementById("acOtherCheck").checked;
+  const otherTxt = document.getElementById("acOtherText").value.trim();
+  if (totalAc < 2 && !(otherChk && otherTxt)) {
+    showErr("acErr"); ok = false;
+  } else { hideErr("acErr"); }
+
+  // 일정
+  const scheduleVal = document.querySelector('input[name="schedule"]:checked');
+  if (!scheduleVal) { showErr("scheduleErr"); ok = false; }
+  else { hideErr("scheduleErr"); }
+
+  // 동의
+  if (!document.getElementById("agreeCheck").checked) { showErr("agreeErr"); ok = false; }
+  else { hideErr("agreeErr"); }
+
+  return ok;
+}
+
+// =============================================
+// 제출
+// =============================================
+function buildAcSummary() {
+  const parts = [];
+  AC_TYPES.forEach(ac => {
+    if (acQty[ac.id] > 0) parts.push(`${ac.name} ${acQty[ac.id]}대`);
+  });
+  const otherChk = document.getElementById("acOtherCheck").checked;
+  const otherTxt = document.getElementById("acOtherText").value.trim();
+  if (otherChk && otherTxt) parts.push("기타: " + otherTxt);
+  return parts.join(" / ");
+}
+
+document.getElementById("mainForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+  if (!validate()) {
+    const firstErr = document.querySelector(".error-msg.show");
+    if (firstErr) firstErr.scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
+  }
+
+  const parkingRaw = document.querySelector('input[name="parking"]:checked').value;
+  const parkingFinal = parkingRaw === "기타"
+    ? "기타: " + document.getElementById("parkingOther").value.trim()
+    : parkingRaw;
+
+  const scheduleType = document.querySelector('input[name="schedule"]:checked').value;
+  const scheduleDetail = document.getElementById("scheduleText").value.trim();
+
+  const payload = {
+    timestamp: new Date().toLocaleString("ko-KR"),
+    name: document.getElementById("name").value.trim(),
+    phone: document.getElementById("phone").value.trim(),
+    postcode: document.getElementById("postcode").value.trim(),
+    address: document.getElementById("address1").value.trim() + " " + document.getElementById("address2").value.trim(),
+    parking: parkingFinal,
+    acSummary: buildAcSummary(),
+    scheduleType,
+    scheduleDetail,
+  };
+
+  document.getElementById("loadingOverlay").classList.add("show");
+  document.getElementById("submitBtn").disabled = true;
+
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    document.getElementById("loadingOverlay").classList.remove("show");
+    document.getElementById("mainForm").style.display = "none";
+    document.getElementById("successScreen").style.display = "block";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } catch (err) {
+    document.getElementById("loadingOverlay").classList.remove("show");
+    document.getElementById("submitBtn").disabled = false;
+    alert("제출 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.\n\n문의: 1600-2605");
+  }
+});
+</script>
+</body>
+</html>
