@@ -469,7 +469,7 @@
   <div class="success-screen" id="successScreen">
     <div class="gf-header-bar" style="margin: -40px -24px 32px; height:10px;border-radius:8px 8px 0 0;"></div>
     <div class="success-icon">😆</div>
-    <h2>답변 감사합니다</h2>
+    <h2>답변 감사합니다😆</h2>
     <p>
       입력하신 정보를 바탕으로 순차적으로 해피콜 상담 연락을 드릴 예정입니다.<br><br>
       정확하지 않은 정보를 기입할 경우, 서비스 접수가 지연되거나 접수가 불가 할 수 있으니<br>
@@ -480,7 +480,8 @@
 </div><!-- gf-wrap -->
 
 <script>
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxrc9iOBVduBKJ7K6BUeTwxMgv-RQANiHMvXzlo8pucYsDABgJbaWsnEu7UIbhLjxxaeg/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzw5fjCXZqralPyi4j0Q5VUL2USMY0n9GgSEBBpU0XDCYVQOzi6U27EHUClgldMX2xNKg/exec";
+
 const AC_TYPES = [
   { id: "wall",  name: "벽걸이형(액자형,창문형은 서비스불가)", note: "", img: "IMG_WALL" },
   { id: "stand", name: "스탠드형(가정용)",                     note: "", img: "IMG_STAND" },
@@ -647,7 +648,8 @@ document.getElementById("mainForm").addEventListener("submit", async function(e)
   document.getElementById("loadingOverlay").classList.add("show");
   document.getElementById("submitBtn").disabled = true;
   try {
-    await fetch(APPS_SCRIPT_URL, { method:"POST", mode:"no-cors", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload) });
+    const params = new URLSearchParams(payload);
+    await fetch(APPS_SCRIPT_URL, { method:"POST", mode:"no-cors", body:params });
     document.getElementById("loadingOverlay").classList.remove("show");
     document.getElementById("mainForm").style.display = "none";
     document.getElementById("successScreen").classList.add("show");
