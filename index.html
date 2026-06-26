@@ -480,7 +480,7 @@
 </div><!-- gf-wrap -->
 
 <script>
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbynfeUfhRVRlUOugIJYweSTuGBC6wJDGRY7bimmF5RsroFET3Miu75PpOFdDIFTZnAeMQ/exec";
+const APPS_SCRIPT_URL = "여기에_Apps_Script_웹앱_URL_붙여넣기";
 
 const AC_TYPES = [
   { id: "wall",  name: "벽걸이형(액자형,창문형은 서비스불가)", note: "", img: "IMG_WALL" },
@@ -650,10 +650,18 @@ document.getElementById("mainForm").addEventListener("submit", async function(e)
   try {
     await new Promise((resolve) => {
       const params = new URLSearchParams(payload);
-      const img = new Image();
-      img.onload = img.onerror = () => resolve();
-      img.src = APPS_SCRIPT_URL + "?" + params.toString();
-      setTimeout(resolve, 5000);
+      const iframe = document.createElement("iframe");
+      iframe.style.display = "none";
+      iframe.src = APPS_SCRIPT_URL + "?" + params.toString();
+      iframe.onload = iframe.onerror = () => {
+        document.body.removeChild(iframe);
+        resolve();
+      };
+      document.body.appendChild(iframe);
+      setTimeout(() => {
+        try { document.body.removeChild(iframe); } catch(e) {}
+        resolve();
+      }, 8000);
     });
     document.getElementById("loadingOverlay").classList.remove("show");
     document.getElementById("mainForm").style.display = "none";
