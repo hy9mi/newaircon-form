@@ -480,7 +480,7 @@
 </div><!-- gf-wrap -->
 
 <script>
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzw5fjCXZqralPyi4j0Q5VUL2USMY0n9GgSEBBpU0XDCYVQOzi6U27EHUClgldMX2xNKg/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnXGUsLPJkVUgcs2AgWH5fPDe9xkUVPuwMQZtDEInDUUy4BUX4pVFHX47TLVZxX9SG5A/exec";
 
 const AC_TYPES = [
   { id: "wall",  name: "벽걸이형(액자형,창문형은 서비스불가)", note: "", img: "IMG_WALL" },
@@ -649,7 +649,7 @@ document.getElementById("mainForm").addEventListener("submit", async function(e)
   document.getElementById("submitBtn").disabled = true;
   try {
     const params = new URLSearchParams(payload);
-    await fetch(APPS_SCRIPT_URL, { method:"POST", mode:"no-cors", body:params });
+    await fetch(APPS_SCRIPT_URL + "?" + params.toString(), { method:"GET", mode:"no-cors" });
     document.getElementById("loadingOverlay").classList.remove("show");
     document.getElementById("mainForm").style.display = "none";
     document.getElementById("successScreen").classList.add("show");
