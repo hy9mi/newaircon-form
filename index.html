@@ -590,6 +590,8 @@ function updateAcText() {
   const otherChk = document.getElementById("acOtherCheck").checked;
   const otherTxt = document.getElementById("acOtherText").value.trim();
   if (otherChk && otherTxt) parts.push(otherTxt);
+  // acText hidden input 업데이트
+  document.getElementById("acText").value = parts.join(" / ");
   // 합계 표시
   const totalEl = document.getElementById("acTotal");
   if (totalEl) {
