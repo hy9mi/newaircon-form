@@ -182,13 +182,35 @@
       flex-shrink: 0;
       cursor: pointer;
     }
-    .ac-thumb {
-      width: 52px;
-      height: 52px;
-      object-fit: contain;
+    .ac-thumb-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       flex-shrink: 0;
+      width: 80px;
+    }
+    .ac-thumb {
+      width: 76px;
+      height: 76px;
+      object-fit: contain;
       background: #f8f9fa;
       border-radius: 4px;
+    }
+    .ac-price-box {
+      display: none;
+    }
+    .ac-orig-price {
+      font-size: 11px;
+      color: #aaa;
+      text-decoration: line-through;
+      line-height: 1.4;
+    }
+    .ac-sale-price {
+      font-size: 12px;
+      color: #673ab7;
+      font-weight: 700;
+      line-height: 1.4;
+      white-space: nowrap;
     }
     .ac-info { flex: 1; min-width: 0; }
     .ac-name { font-size: 14px; color: #202124; line-height: 1.4; }
@@ -339,6 +361,7 @@
 <span class="price-item">• 2in1 멀티형 :  218,000원 → <span class="blue">할인가 189,000원</span></span>
 <span class="price-item">• 천장형 1/2way 시스템 에어컨 : 99,000원 → <span class="blue">할인가 89,000원</span></span>
 <span class="price-item">• 천장형 4way 시스템 에어컨 : 169,000원 → <span class="blue">할인가 149,000원</span></span>
+<span class="price-item">• 스탠드형(업소용) : 169,000원 → <span class="blue">할인가 159,000원</span></span>
 
 * 부가가치세(VAT)가 포함된 가격입니다.
 * 위 금액은 기본 서비스 비용이며,  일반적인 환경이라면 별도의 추가 비용은 없습니다.
@@ -407,7 +430,9 @@
     <div class="gf-label">서비스 받으실 에어컨 종류를 선택해주세요.(복수 선택 가능) <span class="req">*</span></div>
     <div class="gf-hint">체크 후 수량을 조절해주세요 (총 2대 이상)</div>
     <div id="acList"></div>
-    <div class="gf-divider" style="margin-top:8px;"></div>
+    <!-- 합계 -->
+    <div id="acTotal" style="display:none;margin-top:12px;padding:10px 12px;background:#f8f5ff;border-radius:6px;font-size:13px;color:#202124;border:1px solid #d0b8f5;"></div>
+    <div class="gf-divider" style="margin-top:12px;"></div>
     <label class="gf-option" style="margin-top:4px;">
       <input type="checkbox" id="acOtherCheck" />
       기타
@@ -418,13 +443,8 @@
     <div class="gf-err" id="acErr">에어컨 종류를 선택하고 수량을 설정해주세요 (총 2대 이상).</div>
   </div>
 
-  <!-- 에어컨 수량 텍스트 -->
-  <div class="gf-card">
-    <div class="gf-label">서비스 받으실 에어컨의 종류와 수량을 작성해주세요. (에어컨 종류를 구분 필수) <span class="req">*</span></div>
-    <div class="gf-hint">ex. 벽걸이 2대 / 스탠드형(가정용) 2대</div>
-    <input type="text" class="gf-input" id="acText" placeholder="내 답변" />
-    <div class="gf-err" id="acTextErr">이 질문은 필수 질문입니다.</div>
-  </div>
+  <!-- 에어컨 수량 텍스트 (hidden) -->
+  <input type="hidden" id="acText" />
 
   <!-- 희망 일정 -->
   <div class="gf-card">
@@ -468,7 +488,7 @@
   <!-- 완료 -->
   <div class="success-screen" id="successScreen">
     <div class="gf-header-bar" style="margin: -40px -24px 32px; height:10px;border-radius:8px 8px 0 0;"></div>
-    <div class="success-icon"></div>
+    <div class="success-icon">😆</div>
     <h2>답변 감사합니다😆</h2>
     <p>
       입력하신 정보를 바탕으로 순차적으로 해피콜 상담 연락을 드릴 예정입니다.<br><br>
@@ -483,12 +503,12 @@
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbytjJKnNsMzw3xmkISKbU6ahjhmp0F4rpDf8ahtbPBW9A1jQASZPt9FWaPFxIpLt2u7eQ/exec";
 
 const AC_TYPES = [
-  { id: "wall",  name: "벽걸이형(액자형,창문형은 서비스불가)", note: "", img: "IMG_WALL" },
-  { id: "stand", name: "스탠드형(가정용)",                     note: "", img: "IMG_STAND" },
-  { id: "in21",  name: "2in1 멀티형",                          note: '*"벽걸이 1대 +스탠드 1대"가 세트로 이루어진 상품은 대량 서비스에 해당하지 않습니다.', img: "IMG_2IN1" },
-  { id: "c12",   name: "천장형 1/2 way 시스템 에어컨",         note: "", img: "IMG_C12" },
-  { id: "c4",    name: "천장형 4way 시스템 에어컨",            note: "", img: "IMG_C4" },
-  { id: "biz",   name: "스탠드형(업소용)",                     note: "", img: "IMG_BIZ" },
+  { id: "wall",  name: "벽걸이형(액자형,창문형은 서비스불가)", note: "", img: "IMG_WALL",  price: 69000,  origPrice: 79000 },
+  { id: "stand", name: "스탠드형(가정용)",                     note: "", img: "IMG_STAND", price: 129000, origPrice: 139000 },
+  { id: "in21",  name: "2in1 멀티형",                          note: '*"벽걸이 1대 +스탠드 1대"가 세트로 이루어진 상품은 대량 서비스에 해당하지 않습니다.', img: "IMG_2IN1", price: 189000, origPrice: 218000 },
+  { id: "c12",   name: "천장형 1/2 way 시스템 에어컨",         note: "", img: "IMG_C12",  price: 89000,  origPrice: 99000 },
+  { id: "c4",    name: "천장형 4way 시스템 에어컨",            note: "", img: "IMG_C4",   price: 149000, origPrice: 169000 },
+  { id: "biz",   name: "스탠드형(업소용)",                     note: "", img: "IMG_BIZ",  price: 159000, origPrice: 169000 },
 ];
 
 const AC_IMGS = {
@@ -503,15 +523,23 @@ const AC_IMGS = {
 let acQty = {};
 AC_TYPES.forEach(ac => acQty[ac.id] = 0);
 
+function fmtPrice(n) { return n.toLocaleString("ko-KR") + "원"; }
+
 function renderAcList() {
   const list = document.getElementById("acList");
   list.innerHTML = AC_TYPES.map(ac => `
     <div class="ac-option">
       <input type="checkbox" id="ac-chk-${ac.id}" onchange="toggleAc('${ac.id}')" />
-      <img src="${AC_IMGS[ac.img]}" class="ac-thumb" alt="${ac.name}" />
+      <div class="ac-thumb-wrap">
+        <img src="${AC_IMGS[ac.img]}" class="ac-thumb" alt="${ac.name}" />
+      </div>
       <div class="ac-info">
         <div class="ac-name">${ac.name}</div>
         ${ac.note ? `<div class="ac-note">${ac.note}</div>` : ""}
+        <div style="margin-top:4px;">
+          <span class="ac-orig-price">${fmtPrice(ac.origPrice)}</span>
+          <span class="ac-sale-price"> → 할인가 ${fmtPrice(ac.price)}</span>
+        </div>
       </div>
       <div class="ac-qty" id="ac-qty-${ac.id}">
         <button type="button" class="qty-btn" onclick="changeQty('${ac.id}', -1)">−</button>
@@ -545,11 +573,26 @@ function changeQty(id, delta) {
 
 function updateAcText() {
   const parts = [];
-  AC_TYPES.forEach(ac => { if (acQty[ac.id] > 0) parts.push(`${ac.name} ${acQty[ac.id]}대`); });
+  let total = 0;
+  AC_TYPES.forEach(ac => {
+    if (acQty[ac.id] > 0) {
+      parts.push(`${ac.name} ${acQty[ac.id]}대`);
+      total += ac.price * acQty[ac.id];
+    }
+  });
   const otherChk = document.getElementById("acOtherCheck").checked;
   const otherTxt = document.getElementById("acOtherText").value.trim();
   if (otherChk && otherTxt) parts.push(otherTxt);
-  document.getElementById("acText").value = parts.join(" / ");
+  // 합계 표시
+  const totalEl = document.getElementById("acTotal");
+  if (totalEl) {
+    if (total > 0) {
+      totalEl.style.display = "block";
+      totalEl.innerHTML = `예상 합계 금액: <strong>${total.toLocaleString("ko-KR")}원</strong> <span style="font-size:11px;color:#70757a">(VAT 포함 · 업소용/현장상황에 따라 변동)</span>`;
+    } else {
+      totalEl.style.display = "none";
+    }
+  }
 }
 
 function openAddressSearch() {
@@ -605,8 +648,7 @@ function validate() {
   const totalAc = Object.values(acQty).reduce((a,b)=>a+b,0);
   const otherOk = document.getElementById("acOtherCheck").checked && document.getElementById("acOtherText").value.trim();
   if (totalAc<2 && !otherOk) { showErr("acErr"); ok=false; } else hideErr("acErr");
-  const acTextVal = document.getElementById("acText").value.trim();
-  if (!acTextVal) { showErr("acTextErr"); setErr("acText",true); ok=false; } else { hideErr("acTextErr"); setErr("acText",false); }
+
   if (!document.querySelector('input[name="schedule"]:checked')) { showErr("scheduleErr"); ok=false; } else hideErr("scheduleErr");
   if (!document.querySelector('input[name="agree"]:checked')) { showErr("agreeErr"); ok=false; } else hideErr("agreeErr");
   return ok;
