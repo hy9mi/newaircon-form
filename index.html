@@ -462,6 +462,13 @@
     <div class="gf-err" id="scheduleErr">이 질문은 필수 질문입니다.</div>
   </div>
 
+  <!-- 고객 남김말 -->
+  <div class="gf-card">
+    <div class="gf-label">고객 남김말</div>
+    <div class="gf-hint">서비스 관련하여 전달하고 싶은 말씀이 있으시면 자유롭게 작성해주세요.</div>
+    <textarea class="gf-input" id="customerNote" rows="3" placeholder="내 답변"></textarea>
+  </div>
+
   <!-- 개인정보 동의 -->
   <div class="gf-card">
     <div class="gf-label">개인정보 수집 및 이용 동의 <span class="req">*</span></div>
@@ -500,7 +507,7 @@
 </div><!-- gf-wrap -->
 
 <script>
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbytjJKnNsMzw3xmkISKbU6ahjhmp0F4rpDf8ahtbPBW9A1jQASZPt9FWaPFxIpLt2u7eQ/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwjkJvgL8HW40NVCZvYR8QtGEoSAqE-5UyinyiEizYTht8uqH_wynwWoMxZvYtri2N40w/exec";
 
 const AC_TYPES = [
   { id: "wall",  name: "벽걸이형(액자형,창문형은 서비스불가)", note: "", img: "IMG_WALL",  price: 69000,  origPrice: 79000 },
@@ -676,16 +683,32 @@ document.getElementById("mainForm").addEventListener("submit", async function(e)
   }
   const parkingRaw = document.querySelector('input[name="parking"]:checked').value;
   const parkingFinal = parkingRaw === "기타" ? "기타: " + document.getElementById("parkingOther").value.trim() : parkingRaw;
+  // 합계 금액 계산
+  let totalAmount = 0;
+  AC_TYPES.forEach(ac => { totalAmount += ac.price * acQty[ac.id]; });
+
+  // 주소 파싱: 시도/시군구 추출
+  const addr1Full = document.getElementById("address1").value.trim();
+  const addr2 = document.getElementById("address2").value.trim();
+  const postcode = document.getElementById("postcode").value.trim();
+  const addrParts = addr1Full.split(" ");
+  const sido = addrParts[0] || "";
+  const sigungu = addrParts[1] || "";
+  const fullAddr = (postcode ? "(" + postcode + ") " : "") + addr1Full + " " + addr2;
+
   const payload = {
     timestamp: new Date().toLocaleString("ko-KR"),
     name: document.getElementById("name").value.trim(),
     phone: document.getElementById("phone").value.trim(),
-    postcode: document.getElementById("postcode").value.trim(),
-    address: document.getElementById("address1").value.trim() + " " + document.getElementById("address2").value.trim(),
+    sido: sido,
+    sigungu: sigungu,
+    address: fullAddr,
     parking: parkingFinal,
     acSummary: document.getElementById("acText").value.trim(),
+    totalAmount: totalAmount > 0 ? totalAmount.toLocaleString("ko-KR") + "원" : "",
     scheduleType: document.querySelector('input[name="schedule"]:checked').value,
     scheduleDetail: document.getElementById("scheduleText").value.trim(),
+    customerNote: document.getElementById("customerNote").value.trim(),
   };
   document.getElementById("loadingOverlay").classList.add("show");
   document.getElementById("submitBtn").disabled = true;
