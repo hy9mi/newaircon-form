@@ -597,7 +597,7 @@ function updateAcText() {
   if (totalEl) {
     if (total > 0) {
       totalEl.style.display = "block";
-      totalEl.innerHTML = `서비스 기본 비용 합계 : <strong>${total.toLocaleString("ko-KR")}원</strong> <span style="font-size:11px;color:#70757a">(vat포함) *본 금액은 서비스 기본 비용이며, 경우에 따라서는 현장 상황에 따라 추가금이 발생 될 수도 있습니다. </span>`;
+      totalEl.innerHTML = `서비스 기본 비용 합계 : <strong>${total.toLocaleString("ko-KR")}원</strong> <span style="font-size:11px;color:#70757a">(vat포함) /n*본 금액은 서비스 기본 비용이며, 경우에 따라서는 현장 상황에 따라 추가금이 발생 될 수도 있습니다. </span>`;
     } else {
       totalEl.style.display = "none";
     }
